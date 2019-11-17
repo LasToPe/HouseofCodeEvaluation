@@ -31,6 +31,8 @@ public class LoginActivity extends Activity {
 
             if(resultCode == RESULT_OK) {
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                startActivity(new Intent(LoginActivity.this, ChatRoomActivity.class));
+                finish();
             } else {
                 // TODO show dialog of some kind...
             }
