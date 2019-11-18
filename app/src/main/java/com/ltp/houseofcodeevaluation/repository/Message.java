@@ -15,6 +15,8 @@ public class Message {
     private String text;
     private Date date;
 
+    public Message() {}
+
     public Message(String text) {
         for (UserInfo profile : FirebaseAuth.getInstance().getCurrentUser().getProviderData()) {
             this.userName = profile.getDisplayName();
