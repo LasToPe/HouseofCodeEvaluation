@@ -38,7 +38,7 @@ public class ChatRoomRecyclerAdapter extends RecyclerView.Adapter<ChatRoomRecycl
     public void onBindViewHolder(@NonNull ChatRoomViewHolder holder, int position) {
         ChatRoom chatRoom = chatRooms.get(position);
         holder.name.setText(chatRoom.getName());
-        holder.name.setOnClickListener(new ItemClick());
+        holder.name.setOnClickListener(new ItemClick(holder.name.getText().toString()));
     }
 
     @Override
@@ -57,10 +57,17 @@ public class ChatRoomRecyclerAdapter extends RecyclerView.Adapter<ChatRoomRecycl
 
     public static class ItemClick implements View.OnClickListener {
 
+        private String name;
+        public ItemClick(String name) {
+            this.name = name;
+        }
+
         @Override
         public void onClick(View v) {
             Intent intent = new Intent(v.getContext(), MessagingActivity.class);
+            intent.putExtra("currentRoom", name);
             v.getContext().startActivity(intent);
+
         }
     }
 }

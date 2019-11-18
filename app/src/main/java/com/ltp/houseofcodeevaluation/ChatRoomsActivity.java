@@ -1,7 +1,10 @@
 package com.ltp.houseofcodeevaluation;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -9,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -38,22 +42,48 @@ public class ChatRoomsActivity extends Activity {
 
     private void getChatRooms() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("chat-rooms").get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        List<ChatRoom> chatRooms = new ArrayList<>();
+        try {
+            db.collection("chat-rooms").get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            List<ChatRoom> chatRooms = new ArrayList<>();
 
-                        for(DocumentSnapshot doc : task.getResult().getDocuments()) {
-                            ChatRoom room = doc.toObject(ChatRoom.class);
-                            chatRooms.add(room);
+                            for (DocumentSnapshot doc : task.getResult().getDocuments()) {
+                                ChatRoom room = doc.toObject(ChatRoom.class);
+                                chatRooms.add(room);
+                            }
+                            recyclerView = findViewById(R.id.chat_room_recycler);
+                            adapter = new ChatRoomRecyclerAdapter(chatRooms);
+                            RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
+                            recyclerView.setLayoutManager(layoutManager);
+                            recyclerView.setAdapter(adapter);
                         }
-                        recyclerView = findViewById(R.id.chat_room_recycler);
-                        adapter = new ChatRoomRecyclerAdapter(chatRooms);
-                        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
-                        recyclerView.setLayoutManager(layoutManager);
-                        recyclerView.setAdapter(adapter);
-                    }
-                });
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.wtf("Error", e);
+                            Error();
+                        }
+                    });
+        } catch (Exception e) {
+            Log.wtf("Error", e);
+            Error();
+        }
+    }
+
+    private void Error() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("An error occurred while getting the chat rooms, please try again later");
+        builder.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 }

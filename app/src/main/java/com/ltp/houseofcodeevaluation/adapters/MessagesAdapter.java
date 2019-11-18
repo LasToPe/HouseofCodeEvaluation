@@ -37,7 +37,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
         holder.userName.setText(message.getUserName());
         holder.avatar.setImageURI(Uri.parse(message.getAvatarUri()));
         holder.message.setText(message.getText());
-
+        holder.date.setText(message.getDate().toString());
     }
 
     @Override
@@ -50,11 +50,13 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
         ImageView avatar;
         TextView userName;
         TextView message;
+        TextView date;
         public MessagesViewHolder(@NonNull View itemView) {
             super(itemView);
             avatar = itemView.findViewById(R.id.avatarView);
             userName = itemView.findViewById(R.id.userNameView);
             message = itemView.findViewById(R.id.messageView);
+            date = itemView.findViewById(R.id.dateView);
         }
     }
 }

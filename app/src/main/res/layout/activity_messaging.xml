@@ -11,10 +11,10 @@
         android:id="@+id/messageRecycler"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintBottom_toTopOf="@id/linearLayout"/>
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="0dp"
         android:layout_height="49dp"
         android:background="@color/browser_actions_bg_grey"
@@ -29,7 +29,7 @@
             android:layout_weight="1" />
 
         <EditText
-            android:id="@+id/editText2"
+            android:id="@+id/messageText"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1"
