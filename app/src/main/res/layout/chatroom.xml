@@ -6,18 +6,16 @@
     android:padding="6dp" >
 
     <androidx.appcompat.widget.AppCompatTextView
-        android:layout_width="350dp"
-        android:layout_height="match_parent"
         android:id="@+id/room_name"
-        android:textSize="24dp"/>
+        android:layout_width="350sp"
+        android:layout_height="match_parent"
+        android:textSize="24sp" />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:layout_width="wrap_content"
         android:layout_height="fill_parent"
         android:layout_marginStart="5dp"
-        android:layout_marginLeft="5dp"
         android:layout_toEndOf="@+id/room_name"
-        android:layout_toRightOf="@+id/room_name"
         android:src="@drawable/ic_keyboard_arrow_down_black_24dp"
         android:id="@+id/chevron"/>
 </RelativeLayout>

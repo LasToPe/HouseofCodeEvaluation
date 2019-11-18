@@ -29,7 +29,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".SplashActivity">
+        <activity android:name=".SplashActivity"
+            android:theme="@style/AppTheme.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -37,7 +38,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".LoginActivity"></activity>
-        <activity android:name=".ChatRoomActivity"></activity>
+        <activity android:name=".ChatRoomsActivity"
+            android:theme="@style/AppTheme"></activity>
+        <activity android:name=".MessagingActivity"></activity>
     </application>
     <uses-permission android:name="android.permission.INTERNET"/>
 </manifest>
