@@ -15,6 +15,9 @@ import com.ltp.houseofcodeevaluation.repository.Message;
 
 import java.util.List;
 
+/**
+ * Adapter for the message view
+ */
 public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.MessagesViewHolder> {
 
     List<Message> messages;

@@ -36,6 +36,8 @@ public class ChatRoomsActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chatroom);
+
+        // Set up refresh view
         final SwipeRefreshLayout layout = findViewById(R.id.refreshView);
         layout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -44,6 +46,8 @@ public class ChatRoomsActivity extends Activity {
                 layout.setRefreshing(false);
             }
         });
+
+        // Set up 'menu' dialog
         ImageView menu = findViewById(R.id.menuImage);
         menu.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -55,6 +59,10 @@ public class ChatRoomsActivity extends Activity {
         getChatRooms();
     }
 
+    /**
+     * Method for getting the chat rooms from firebase.
+     * After getting the chat rooms, the recycler is filled with the data
+     */
     private void getChatRooms() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         try {
@@ -66,9 +74,9 @@ public class ChatRoomsActivity extends Activity {
 
                             for (DocumentSnapshot doc : task.getResult().getDocuments()) {
                                 ChatRoom room = doc.toObject(ChatRoom.class);
-                                room.fetchNumberOfMessages();
                                 chatRooms.add(room);
                             }
+                            // Fill recycler
                             recyclerView = findViewById(R.id.chat_room_recycler);
                             adapter = new ChatRoomAdapter(chatRooms);
                             RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
@@ -89,6 +97,9 @@ public class ChatRoomsActivity extends Activity {
         }
     }
 
+    /**
+     * Create and show error dialog
+     */
     private void Error() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("An error occurred while getting the chat rooms, please try again later");
@@ -103,6 +114,9 @@ public class ChatRoomsActivity extends Activity {
         dialog.show();
     }
 
+    /**
+     * Create and show simple dialog to allow the user to log out.
+     */
     private void Menu() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("Log out?");

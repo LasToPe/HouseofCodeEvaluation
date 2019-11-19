@@ -16,6 +16,9 @@ import com.ltp.houseofcodeevaluation.repository.ChatRoom;
 
 import java.util.List;
 
+/**
+ * Adapter for the chat room view
+ */
 public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ChatRoomViewHolder> {
 
     List<ChatRoom> chatRooms;
@@ -37,7 +40,7 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ChatRo
         ChatRoom chatRoom = chatRooms.get(position);
 
         holder.name.setText(chatRoom.getName());
-        holder.name.setOnClickListener(new ItemClick(holder.name.getText().toString()));
+        holder.name.setOnClickListener(new ChatRoomClick(holder.name.getText().toString()));
 
         holder.chevron.setOnClickListener(new ChevronClick(holder.description, holder.messages));
         holder.description.setText(chatRoom.getDescription());
@@ -65,10 +68,13 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ChatRo
         }
     }
 
-    public static class ItemClick implements View.OnClickListener {
+    /**
+     * On click class for clicking the room name, takes the user to the messages screen
+     */
+    public static class ChatRoomClick implements View.OnClickListener {
 
         private String name;
-        public ItemClick(String name) {
+        public ChatRoomClick(String name) {
             this.name = name;
         }
 
@@ -77,10 +83,12 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ChatRo
             Intent intent = new Intent(v.getContext(), MessagingActivity.class);
             intent.putExtra("currentRoom", name);
             v.getContext().startActivity(intent);
-
         }
     }
 
+    /**
+     * On click class for the chevron to show more information about the chat rooms
+     */
     public static class ChevronClick implements View.OnClickListener {
 
         private TextView description;
@@ -91,6 +99,10 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ChatRo
             this.messages = messages;
         }
 
+        /**
+         * Toggles between visible and gone for the description and number of messages
+         * @param v
+         */
         @Override
         public void onClick(View v) {
             if(description.getVisibility() == View.GONE) {

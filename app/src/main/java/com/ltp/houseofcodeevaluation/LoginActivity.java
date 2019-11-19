@@ -1,6 +1,8 @@
 package com.ltp.houseofcodeevaluation;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -29,14 +31,19 @@ public class LoginActivity extends Activity {
 
             if(resultCode == RESULT_OK) {
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                startActivity(new Intent(LoginActivity.this, ChatRoomsActivity.class));
+                if(user != null) {
+                    startActivity(new Intent(LoginActivity.this, ChatRoomsActivity.class));
+                }
                 finish();
             } else {
-                // TODO show dialog of some kind...
+                Error();
             }
         }
     }
 
+    /**
+     * Set up authentication methods, in this case google and facebook
+     */
     private void setupAuth() {
         AuthUI.IdpConfig p[] = new AuthUI.IdpConfig[] {
                 new AuthUI.IdpConfig.GoogleBuilder().build(),
@@ -44,7 +51,23 @@ public class LoginActivity extends Activity {
         };
 
         List<AuthUI.IdpConfig> providers = Arrays.asList(p);
-
         startActivityForResult(AuthUI.getInstance().createSignInIntentBuilder().setAvailableProviders(providers).build(), 123);
+    }
+
+    /**
+     * Create and show error in case of failure
+     */
+    private void Error() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("An error occurred while logging in, please try again later");
+        builder.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 }

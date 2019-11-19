@@ -11,6 +11,9 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.List;
 
+/**
+ * Definition of a chat room
+ */
 public class ChatRoom {
     private String name;
     private String description;
@@ -38,25 +41,6 @@ public class ChatRoom {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public void fetchNumberOfMessages() {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        try {
-            db.collection("chat-rooms").document(name).collection("messages").get()
-                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                            int count = 0;
-                            for(DocumentSnapshot doc : task.getResult().getDocuments()) {
-                                count += 1;
-                            }
-                            setNumberOfMessages(count);
-                        }
-                    });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     public void setNumberOfMessages(int value) {

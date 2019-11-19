@@ -44,8 +44,10 @@ public class MessagingActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_messaging);
 
+        // Sets the current chat room from the extras strings
         currentRoom = getIntent().getStringExtra("currentRoom");
 
+        // Set up the messaging text box and send button
         messageText = findViewById(R.id.messageText);
         sendButton = findViewById(R.id.sendButton);
         sendButton.setOnClickListener(new View.OnClickListener() {
@@ -54,10 +56,14 @@ public class MessagingActivity extends Activity {
                 sendMessage();
             }
         });
+
         getMessages();
         attachListener();
     }
 
+    /**
+     * Get the initial messages of the chat room from firebase
+     */
     private void getMessages() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         try {
@@ -89,6 +95,9 @@ public class MessagingActivity extends Activity {
         }
     }
 
+    /**
+     * Create and attach listener for changes in the messages collection for the current chat room
+     */
     private void attachListener() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         try {
@@ -115,6 +124,10 @@ public class MessagingActivity extends Activity {
         }
     }
 
+    /**
+     * Load the messages into the view
+     * @param messages List of the loaded messages
+     */
     private void postToView(List<Message> messages) {
         recyclerView = findViewById(R.id.messageRecycler);
         adapter = new MessagesAdapter(messages);
@@ -124,9 +137,16 @@ public class MessagingActivity extends Activity {
         recyclerView.setAdapter(adapter);
     }
 
+    /**
+     * Method for sending a message, gets the string from the text field creates a new message with the content.
+     * Sends the data to the firebase and updates the number of messages in the current room.
+     */
     private void sendMessage() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         String text = messageText.getText().toString();
+        if (text == "") {
+            return;
+        }
         messageText.setText("");
         Message message = new Message(text);
         try {
@@ -137,6 +157,9 @@ public class MessagingActivity extends Activity {
         }
     }
 
+    /**
+     * Creates and shows a dialog in case of a failure
+     */
     private void Error() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("An error occurred while getting the messages, please try again later");
