@@ -3,6 +3,7 @@ package com.ltp.houseofcodeevaluation;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -24,6 +25,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingService;
 import com.ltp.houseofcodeevaluation.adapters.MessagesAdapter;
 import com.ltp.houseofcodeevaluation.repository.Message;
 
@@ -147,6 +150,7 @@ public class MessagingActivity extends Activity {
         if (text == "") {
             return;
         }
+        HandleSubscription();
         messageText.setText("");
         Message message = new Message(text);
         try {
@@ -155,6 +159,22 @@ public class MessagingActivity extends Activity {
         } catch (Exception e) {
             Log.wtf("Error", e);
         }
+    }
+
+    private void HandleSubscription() {
+        String trimmedRoomName = currentRoom.replace(" ", "_").replace(".", "");
+        FirebaseMessaging.getInstance().subscribeToTopic(trimmedRoomName)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if(!task.isSuccessful()) {
+                            Log.wtf("Error", "Something went wrong subscribing to the topic...");
+                        } else {
+                            System.out.println("Subscribed to " + currentRoom);
+//                            SharedPreferences preferences = getSharedPreferences()
+                        }
+                    }
+                });
     }
 
     /**

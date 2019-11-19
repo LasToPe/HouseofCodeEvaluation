@@ -3,13 +3,17 @@ const admin = require('firebase-admin');
 
 admin.initializeApp();
 
-exports.sendNotification = functions.firestore
-    .document("chat-rooms/{room-name}/messages/{id}")
+exports.sendNotification = functions.region('europe-west2').firestore
+    .document("/chat-rooms/{roomName}/messages/{id}")
     .onCreate((snap, context) => {
+        var room = context.params.roomName;
+        console.log(room);
         var payload = {
             notification: {
-                title: "New message!",
-                body: "There's a new message waiting for you."
+                title: "New message",
+                body: `New message in ${room}`
             }
         };
+        admin.messaging().sendToTopic(room.replace(" ", "_").replace(".", ""), payload);
+        return null;
     });
