@@ -30,7 +30,7 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ChatRo
     @NonNull
     @Override
     public ChatRoomViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.chatroom, parent, false);
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.partial_chatroom, parent, false);
 
         return new ChatRoomViewHolder(itemView);
     }
