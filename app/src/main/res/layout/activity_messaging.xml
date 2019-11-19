@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/cardview_dark_background"
     android:orientation="vertical">
 
     <androidx.recyclerview.widget.RecyclerView
@@ -35,7 +34,8 @@
             android:layout_weight="1"
             android:background="@color/browser_actions_bg_grey"
             android:ems="10"
-            android:inputType="text" />
+            android:inputType="text"
+            android:hint="Message"/>
 
         <ImageButton
             android:id="@+id/sendButton"

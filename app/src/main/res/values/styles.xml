@@ -8,8 +8,7 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="AppTheme.Splash" parent="Theme.AppCompat.Light.NoActionBar">
-
+    <style name="Splash" parent="Theme.AppCompat.Light.NoActionBar">
     </style>
 
     <style name="Heading" parent="Theme.AppCompat.Light.NoActionBar">

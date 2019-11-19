@@ -37,6 +37,7 @@ public class MessagingActivity extends Activity {
     private ImageButton sendButton;
     private RecyclerView recyclerView;
     private MessagesAdapter adapter;
+    private List<Message> messageList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +73,7 @@ public class MessagingActivity extends Activity {
                                 messages.add(message);
                             }
 
+                            messageList = messages;
                             postToView(messages);
                         }
                     }).addOnFailureListener(new OnFailureListener() {
@@ -99,13 +101,12 @@ public class MessagingActivity extends Activity {
                                 Log.wtf("Error", e);
                             }
 
-                            System.out.println("EVENT!");
-
                             List<Message> messages = new ArrayList<>();
                             for(DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
                                 Message message = doc.toObject(Message.class);
                                 messages.add(message);
                             }
+                            messageList = messages;
                             postToView(messages);
                         }
                     });
@@ -130,6 +131,7 @@ public class MessagingActivity extends Activity {
         Message message = new Message(text);
         try {
             db.collection("chat-rooms").document(currentRoom).collection("messages").add(message);
+            db.collection("chat-rooms").document(currentRoom).update("numberOfMessages", messageList.size()+1);
         } catch (Exception e) {
             Log.wtf("Error", e);
         }
