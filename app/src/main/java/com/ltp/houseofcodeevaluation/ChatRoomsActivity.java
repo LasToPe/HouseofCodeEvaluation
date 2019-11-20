@@ -87,12 +87,12 @@ public class ChatRoomsActivity extends Activity {
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            Log.wtf("Error", e);
+                            Log.e("Error", e.getMessage());
                             Error();
                         }
                     });
         } catch (Exception e) {
-            Log.wtf("Error", e);
+            Log.e("Error", e.getMessage());
             Error();
         }
     }

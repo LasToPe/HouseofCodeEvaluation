@@ -15,7 +15,6 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.facebook.share.Share;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -24,10 +23,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.FirebaseMessagingService;
 import com.ltp.houseofcodeevaluation.adapters.MessagesAdapter;
 import com.ltp.houseofcodeevaluation.repository.Message;
 
@@ -89,12 +86,12 @@ public class MessagingActivity extends Activity {
                     }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    Log.wtf("Error", e);
+                    Log.e("Error", e.getMessage());
                     Error();
                 }
             });
         } catch (Exception e) {
-            Log.wtf("Error", e);
+            Log.e("Error", e.getMessage());
             Error();
         }
     }
@@ -111,7 +108,7 @@ public class MessagingActivity extends Activity {
                         @Override
                         public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
                             if(e != null) {
-                                Log.wtf("Error", e);
+                                Log.e("Error", e.getMessage());
                             }
 
                             List<Message> messages = new ArrayList<>();
@@ -162,6 +159,9 @@ public class MessagingActivity extends Activity {
         }
     }
 
+    /**
+     * Method for handling subscribing to a chat room, shows a dialog to subscribe and handles in the background
+     */
     private void HandleSubscription() {
         // Trim the current room string, topics cannot contain spaces, must follow [a-zA-Z0-9-_.~%]
         final String trimmedRoomName = currentRoom.replace(" ", "_").replace(".", "");
@@ -204,8 +204,6 @@ public class MessagingActivity extends Activity {
             AlertDialog dialog = builder.create();
             dialog.show();
         }
-
-
     }
 
     /**
