@@ -6,11 +6,22 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <ImageView
+        android:id="@+id/preview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/browser_actions_bg_grey"
+        android:elevation="@dimen/cardview_default_elevation"
+        app:layout_constraintBottom_toTopOf="@id/linearLayout"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/messageRecycler"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@id/linearLayout"/>
+        android:scrollbars="vertical"
+        app:layout_constraintBottom_toTopOf="@id/linearLayout"
+        tools:layout_editor_absoluteX="-125dp" />
 
     <LinearLayout
         android:id="@+id/linearLayout"

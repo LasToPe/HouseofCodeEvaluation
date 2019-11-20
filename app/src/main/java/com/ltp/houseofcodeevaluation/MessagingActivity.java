@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -19,8 +20,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -47,7 +50,7 @@ public class MessagingActivity extends Activity {
     private MessagesAdapter adapter;
     private List<Message> messageList;
     private int PICK_IMAGE_REQUEST = 55;
-    private Uri filepath = null;
+    private String filepath = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,7 +88,7 @@ public class MessagingActivity extends Activity {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         try {
             CollectionReference messageRef = db.collection("chat-rooms").document(currentRoom).collection("messages");
-            messageRef.orderBy("date").limit(50).get()
+            messageRef.orderBy("date").get()
                     .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -160,7 +163,6 @@ public class MessagingActivity extends Activity {
      */
     private void sendMessage() {
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
-        FirebaseStorage storage = FirebaseStorage.getInstance();
 
         String text = messageText.getText().toString();
         if (text.equals("") && filepath == null) {
@@ -169,31 +171,20 @@ public class MessagingActivity extends Activity {
 
         HandleSubscription();
 
-        Message message = new Message(text);
         try {
-            if(filepath != null) {
-                final StorageReference reference = storage.getReference().child("images/" + UUID.randomUUID().toString());
-                reference.putFile(filepath)
-                        .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                                Log.d("Debug", task.getResult().toString());
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.e("Error", e.getMessage());
-                    }
-                });
-            } else {
-                db.collection("chat-rooms").document(currentRoom).collection("messages").add(message);
-                db.collection("chat-rooms").document(currentRoom).update("numberOfMessages", messageList.size() + 1);
-            }
+            Message message = new Message(text);
+            db.collection("chat-rooms").document(currentRoom).collection("messages").add(message).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                @Override
+                public void onSuccess(DocumentReference documentReference) {
+                    uploadImage(documentReference);
+                }
+            });
+            db.collection("chat-rooms").document(currentRoom).update("numberOfMessages", messageList.size() + 1);
         } catch (Exception e) {
             Log.e("Error", e.getMessage());
         } finally {
             messageText.setText("");
-            filepath = null;
+            findViewById(R.id.preview).setVisibility(View.GONE);
         }
     }
 
@@ -255,7 +246,36 @@ public class MessagingActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            filepath = data.getData();
+            filepath = data.getData().toString();
+            ImageView preview = findViewById(R.id.preview);
+            preview.setImageURI(data.getData());
+            preview.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void uploadImage(DocumentReference documentReference) {
+        try {
+            if (filepath != null) {
+                Uri path = Uri.parse(filepath);
+                FirebaseStorage storage = FirebaseStorage.getInstance();
+                final String imagePath = currentRoom + "/" + documentReference.getId();
+                final StorageReference reference = storage.getReference().child(imagePath);
+                reference.putFile(path).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                        Log.d("Debug", task.getResult().toString());
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e("Error", e.getMessage());
+                    }
+                });
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+            filepath = null;
         }
     }
 

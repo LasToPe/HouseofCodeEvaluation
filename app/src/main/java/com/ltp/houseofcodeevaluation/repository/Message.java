@@ -17,6 +17,7 @@ public class Message {
     private String avatarUri;
     private String text;
     private Date date;
+    private String imageUri;
 
     public Message() {}
 
@@ -33,11 +34,22 @@ public class Message {
         this.date = new Date();
     }
 
-    public Message(String userName, String avatarUri, String text, Date date) {
+    public Message(Uri uri) {
+        for (UserInfo profile : FirebaseAuth.getInstance().getCurrentUser().getProviderData()) {
+            this.userName = profile.getDisplayName();
+            this.avatarUri = profile.getPhotoUrl().toString();
+        }
+        this.text = null;
+        this.date = new Date();
+        this.imageUri = uri.toString();
+    }
+
+    public Message(String userName, String avatarUri, String text, Date date, String imageUri) {
         this.userName = userName;
         this.avatarUri = avatarUri;
         this.text = text;
         this.date = date;
+        this.imageUri = imageUri;
     }
 
     public String getUserName() {
@@ -54,5 +66,12 @@ public class Message {
 
     public Date getDate() {
         return date;
+    }
+
+    public Uri getImageUri() {
+        if (imageUri != null) {
+            return Uri.parse(imageUri);
+        }
+        return null;
     }
 }

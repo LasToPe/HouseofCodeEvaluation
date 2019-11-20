@@ -25,3 +25,12 @@ exports.sendNotification = functions.region('europe-west2').firestore
 
         return admin.messaging().sendToTopic(topic, payload, options);
     });
+
+exports.createMessageWithImage = functions.region('europe-west2').storage
+    .object().onFinalize(async (object) => {
+
+        var room = object.name.match(/.*?(?=\/)/g)[0];
+        var message = object.name.match(/\/.*/g)[0].replace("/", "");
+        return admin.firestore().collection('chat-rooms').doc(room)
+            .collection('messages').doc(message).update({imageUri: object.mediaLink});
+    });
