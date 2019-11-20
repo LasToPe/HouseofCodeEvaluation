@@ -15,6 +15,7 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.facebook.share.Share;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -147,7 +148,7 @@ public class MessagingActivity extends Activity {
     private void sendMessage() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         String text = messageText.getText().toString();
-        if (text == "") {
+        if (text.equals("")) {
             return;
         }
         HandleSubscription();
@@ -157,24 +158,54 @@ public class MessagingActivity extends Activity {
             db.collection("chat-rooms").document(currentRoom).collection("messages").add(message);
             db.collection("chat-rooms").document(currentRoom).update("numberOfMessages", messageList.size()+1);
         } catch (Exception e) {
-            Log.wtf("Error", e);
+            Log.e("Error", e.getMessage());
         }
     }
 
     private void HandleSubscription() {
-        String trimmedRoomName = currentRoom.replace(" ", "_").replace(".", "");
-        FirebaseMessaging.getInstance().subscribeToTopic(trimmedRoomName)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if(!task.isSuccessful()) {
-                            Log.wtf("Error", "Something went wrong subscribing to the topic...");
-                        } else {
-                            System.out.println("Subscribed to " + currentRoom);
-//                            SharedPreferences preferences = getSharedPreferences()
-                        }
-                    }
-                });
+        // Trim the current room string, topics cannot contain spaces, must follow [a-zA-Z0-9-_.~%]
+        final String trimmedRoomName = currentRoom.replace(" ", "_").replace(".", "");
+        // Get whether or not the user is currently subscribed from the shared preferences
+        SharedPreferences preferences = getSharedPreferences("SubscribedTopics", MODE_PRIVATE);
+        boolean subscribed = preferences.getBoolean(currentRoom, false);
+
+        // If the user isn't subscribed and posts in the room the user will be asked if they want to subscribe
+        if(!subscribed) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Would you like to subscribe to ".concat(currentRoom).concat("?"));
+            builder.setPositiveButton("Yes!", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    FirebaseMessaging.getInstance().subscribeToTopic(trimmedRoomName)
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if(!task.isSuccessful()) {
+                                        Log.e("Error", "Something went wrong subscribing to the topic...");
+                                    } else {
+                                        Log.i("Info","Subscribed to " + currentRoom);
+                                        // Update shared preferences
+                                        SharedPreferences preferences = getSharedPreferences("SubscribedTopics", MODE_PRIVATE);
+                                        SharedPreferences.Editor editor = preferences.edit();
+                                        editor.putBoolean(currentRoom, true);
+                                        editor.apply();
+                                    }
+                                }
+                            });
+                }
+            });
+            builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
+
+
     }
 
     /**
