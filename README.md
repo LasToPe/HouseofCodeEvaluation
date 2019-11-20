@@ -138,3 +138,50 @@ private void attachListener() {
     }
 }
 ```
+
+### Push notifications
+The push notifications are handled with the Firebase Cloud Messaging service (FCM). FCM can be used to send messages to specific devices or groups of users, or to topics that the users can subscribe to. In this application topics are used to subscribe to specific chat rooms. Firebase Functions is used for handling the sending of notifications when a new message is created in a chat room. Firebase Functions uses NodeJS for javascript functions deployed to the server. These functions can be made to handle specific serverside functionality. In this project there is a function called `sendNotification` that is in charge of sending the notifications to the given topic.
+The topics in this project are the chat room names trimmed down to contain only [a-zA-Z0-9-_.~%].
+**Subscribtion handler**
+```java
+FirebaseMessaging.getInstance().subscribeToTopic(trimmedRoomName)
+    .addOnCompleteListener(new OnCompleteListener<Void>() {
+        @Override
+        public void onComplete(@NonNull Task<Void> task) {
+            if(!task.isSuccessful()) {
+                Log.e("Error", "Something went wrong subscribing to the topic...");
+            } else {
+                Log.i("Info","Subscribed to " + currentRoom);
+                // Update shared preferences
+                SharedPreferences preferences = getSharedPreferences("SubscribedTopics", MODE_PRIVATE);
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putBoolean(currentRoom, true);
+                editor.apply();
+            }
+        }
+    });
+```
+**Send Notifications Function**
+```javascript
+exports.sendNotification = functions.region('europe-west2').firestore
+    .document("/chat-rooms/{roomName}/messages/{id}")
+    .onCreate((snap, context) => {
+        var room = context.params.roomName;
+        var topic = room.replace(/ /g, "_").replace(/\./, "");
+        console.log(room);
+        console.log(topic);
+
+        const payload = {
+            notification: {
+                title: "New message",
+                body: `New message in ${room}`
+            }
+        };
+        const options = {
+            priority: "high",
+            timeToLive: 60*60*2
+        };
+
+        return admin.messaging().sendToTopic(topic, payload, options);
+    });
+```
