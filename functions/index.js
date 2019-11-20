@@ -3,6 +3,7 @@ const admin = require('firebase-admin');
 
 admin.initializeApp();
 
+// Region must be the same as the region for the firebase project, in this case europe-west2
 exports.sendNotification = functions.region('europe-west2').firestore
     .document("/chat-rooms/{roomName}/messages/{id}")
     .onCreate((snap, context) => {

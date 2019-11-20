@@ -3,7 +3,9 @@ package com.ltp.houseofcodeevaluation;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -25,11 +27,15 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.ltp.houseofcodeevaluation.adapters.MessagesAdapter;
 import com.ltp.houseofcodeevaluation.repository.Message;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class MessagingActivity extends Activity {
 
@@ -37,8 +43,11 @@ public class MessagingActivity extends Activity {
     private TextView messageText;
     private ImageButton sendButton;
     private RecyclerView recyclerView;
+    private ImageButton photoButton;
     private MessagesAdapter adapter;
     private List<Message> messageList;
+    private int PICK_IMAGE_REQUEST = 55;
+    private Uri filepath = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +64,13 @@ public class MessagingActivity extends Activity {
             @Override
             public void onClick(View v) {
                 sendMessage();
+            }
+        });
+        photoButton = findViewById(R.id.photoButton);
+        photoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                chooseImage();
             }
         });
 
@@ -143,19 +159,41 @@ public class MessagingActivity extends Activity {
      * Sends the data to the firebase and updates the number of messages in the current room.
      */
     private void sendMessage() {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+
         String text = messageText.getText().toString();
-        if (text.equals("")) {
+        if (text.equals("") && filepath == null) {
             return;
         }
+
         HandleSubscription();
-        messageText.setText("");
+
         Message message = new Message(text);
         try {
-            db.collection("chat-rooms").document(currentRoom).collection("messages").add(message);
-            db.collection("chat-rooms").document(currentRoom).update("numberOfMessages", messageList.size()+1);
+            if(filepath != null) {
+                final StorageReference reference = storage.getReference().child("images/" + UUID.randomUUID().toString());
+                reference.putFile(filepath)
+                        .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                                Log.d("Debug", task.getResult().toString());
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e("Error", e.getMessage());
+                    }
+                });
+            } else {
+                db.collection("chat-rooms").document(currentRoom).collection("messages").add(message);
+                db.collection("chat-rooms").document(currentRoom).update("numberOfMessages", messageList.size() + 1);
+            }
         } catch (Exception e) {
             Log.e("Error", e.getMessage());
+        } finally {
+            messageText.setText("");
+            filepath = null;
         }
     }
 
@@ -203,6 +241,21 @@ public class MessagingActivity extends Activity {
 
             AlertDialog dialog = builder.create();
             dialog.show();
+        }
+    }
+
+    private void chooseImage() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select image"), PICK_IMAGE_REQUEST);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            filepath = data.getData();
         }
     }
 

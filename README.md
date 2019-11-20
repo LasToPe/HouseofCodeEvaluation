@@ -34,7 +34,7 @@ new Handler().postDelayed(new Runnable() {
 
 ### Login screen
 The login screen is made up entirely of the Firebase AuthUI, which builds a very nice login screen with very little effort.
-To set it up authentication needs to be set up in Firebase. To set up the google login, the applications sha1 key must be linked to the firebase authentication manager. The sha1 value is extracted using `keytool -list -v -alias androiddebugkey -keystore %USERPROFILE%\.android\debug.keystore`. To set up the facebook login, the application must be registered as a facebook linked application. This is done through the <https://developers.facebook.com> website, it is important to follow the instructions all the way through or the link will not work. One important thing to do correctly is use OpenSsl to cahnge the sha1 into a base64 hash, that facebook uses to identify the application.
+To set it up authentication needs to be set up in Firebase. To set up the google login, the applications sha1 key must be linked to the firebase authentication manager. The sha1 value is extracted using `keytool -list -v -alias androiddebugkey -keystore %USERPROFILE%\.android\debug.keystore`. To set up the facebook login, the application must be registered as a facebook linked application. This is done through the <https://developers.facebook.com> website, it is important to follow the instructions all the way through or the link will not work. One important thing to do correctly is use OpenSSL to change the sha1 into a base64 hash, that facebook uses to identify the application.
 
 **Setup Logins**
 ```java
@@ -142,6 +142,7 @@ private void attachListener() {
 ### Push notifications
 The push notifications are handled with the Firebase Cloud Messaging service (FCM). FCM can be used to send messages to specific devices or groups of users, or to topics that the users can subscribe to. In this application topics are used to subscribe to specific chat rooms. Firebase Functions is used for handling the sending of notifications when a new message is created in a chat room. Firebase Functions uses NodeJS for javascript functions deployed to the server. These functions can be made to handle specific serverside functionality. In this project there is a function called `sendNotification` that is in charge of sending the notifications to the given topic.
 The topics in this project are the chat room names trimmed down to contain only [a-zA-Z0-9-_.~%].
+
 **Subscribtion handler**
 ```java
 FirebaseMessaging.getInstance().subscribeToTopic(trimmedRoomName)
