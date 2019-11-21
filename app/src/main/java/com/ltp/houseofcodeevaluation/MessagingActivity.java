@@ -17,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -28,6 +29,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
@@ -51,6 +53,7 @@ public class MessagingActivity extends Activity {
     private List<Message> messageList;
     private int PICK_IMAGE_REQUEST = 55;
     private String filepath = null;
+    private int numberOfMessages = 50;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +80,17 @@ public class MessagingActivity extends Activity {
             }
         });
 
+        // Set up refresh view
+        final SwipeRefreshLayout layout = findViewById(R.id.messagesRefresher);
+        layout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                numberOfMessages += 50;
+                getMessages();
+                layout.setRefreshing(false);
+            }
+        });
+
         getMessages();
         attachListener();
     }
@@ -88,7 +102,7 @@ public class MessagingActivity extends Activity {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         try {
             CollectionReference messageRef = db.collection("chat-rooms").document(currentRoom).collection("messages");
-            messageRef.orderBy("date").get()
+            messageRef.orderBy("date", Query.Direction.DESCENDING).limit(numberOfMessages).get()
                     .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -122,7 +136,7 @@ public class MessagingActivity extends Activity {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         try {
             CollectionReference messagesRef = db.collection("chat-rooms").document(currentRoom).collection("messages");
-            messagesRef.orderBy("date")
+            messagesRef.orderBy("date", Query.Direction.DESCENDING).limit(numberOfMessages)
                     .addSnapshotListener(new EventListener<QuerySnapshot>() {
                         @Override
                         public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
@@ -152,7 +166,7 @@ public class MessagingActivity extends Activity {
         recyclerView = findViewById(R.id.messageRecycler);
         adapter = new MessagesAdapter(messages);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
-        ((LinearLayoutManager)layoutManager).setStackFromEnd(true);
+        ((LinearLayoutManager)layoutManager).setReverseLayout(true);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
     }
