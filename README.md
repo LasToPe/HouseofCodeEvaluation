@@ -90,7 +90,7 @@ private void getChatRooms() {
 ```
 
 ### Send and receive messages
-The messaging screen is like the chat rooms screen made up of the activity layout and the partial. The activity layout again consists of a recycler that contains the partials for the messages, and a small linear layout at the bottom containing a text field for the user to write their message in and a send button. Each message partial layout consitsts of a text view for the user name the person who sent the message, a text view for the time that the message was sent, a text view for the message itself and an image view that should show the users image/avatar. The image view does not seem to work when given a Uri, but I do not know why since the Uri itself works just fine. The messaging screen will automatically update when a new message is detected in the database.
+The messaging screen is like the chat rooms screen made up of the activity layout and the partial. The activity layout again consists of a recycler that contains the partials for the messages, and a small linear layout at the bottom containing a text field for the user to write their message in and a send button. Each message partial layout consitsts of a text view for the user name the person who sent the message, a text view for the time that the message was sent, a text view for the message itself and an image view shows the users image/avatar. The image is loaded with the Glide framework <https://github.com/bumptech/glide>. The messaging screen will automatically update when a new message is detected in the database.
 
 **Send Message**
 ```java
@@ -185,4 +185,84 @@ exports.sendNotification = functions.region('europe-west2').firestore
 
         return admin.messaging().sendToTopic(topic, payload, options);
     });
+```
+### Image upload
+The image upload feature is handled on a chat room basis by the firebase storage functionality. The image is uploaded from the device to the firebase storage and is given the same name as the message it is attached to. The url for the image is set on the message with a firebase function that handles all uploaded files. When the image button is clicked the user is taken to a screen on which an image can be selected. When an image has been selected the user is returned to the messaging screen where a preview of the image is shown above the messaging box. On pressing send the image is uploaded and will shortly thereafter appear in as part of the message.
+
+The firebase function that handles the image when it has been uploaded first splits up the name of the object into the room that it belongs to and the name of the message. A method for getting the downloadable url from the medialink and the download token is called and the message is updated in the firestore with the url as the value for the imageUri parameter.
+
+**Choose Image**
+```java
+private void chooseImage() {
+    Intent intent = new Intent();
+    intent.setType("image/*");
+    intent.setAction(Intent.ACTION_GET_CONTENT);
+    startActivityForResult(Intent.createChooser(intent, "Select image"), PICK_IMAGE_REQUEST);
+}
+
+@Override
+protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    if(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+        filepath = data.getData().toString();
+        ImageView preview = findViewById(R.id.preview);
+        preview.setImageURI(data.getData());
+        preview.setVisibility(View.VISIBLE);
+    }
+}
+```
+**Upload Image**
+```java
+private void uploadImage(DocumentReference documentReference) {
+    try {
+        if (filepath != null) {
+            Uri path = Uri.parse(filepath);
+            FirebaseStorage storage = FirebaseStorage.getInstance();
+            final String imagePath = currentRoom + "/" + documentReference.getId();
+            final StorageReference reference = storage.getReference().child(imagePath);
+            reference.putFile(path).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                    Log.d("Debug", task.getResult().toString());
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.e("Error", e.getMessage());
+                }
+            });
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }finally {
+        filepath = null;
+    }
+}
+```
+**Firebase Handle upload function**
+```javascript
+exports.createMessageWithImage = functions.region('europe-west2').storage
+    .object().onFinalize((object) => {
+
+        var room = object.name.match(/.*?(?=\/)/g)[0];
+        var message = object.name.match(/\/.*/g)[0].replace("/", "");
+
+        var url = mediaLinkToDownloadableUrl(object);
+        console.log(url);
+
+        return admin.firestore().collection('chat-rooms').doc(room)
+            .collection('messages').doc(message).update({imageUri: url});
+    });
+
+function mediaLinkToDownloadableUrl(object) {
+    var firstPartUrl = object.mediaLink.split("?")[0] // 'https://www.googleapis.com/download/storage/v1/b/house-of-code-evaluation.appspot.com/o/...'
+    var secondPartUrl = object.mediaLink.split("?")[1] // 'generation=...&alt=media'
+
+    firstPartUrl = firstPartUrl.replace("https://www.googleapis.com/download/storage", "https://firebasestorage.googleapis.com")
+    firstPartUrl = firstPartUrl.replace("v1", "v0")
+
+    firstPartUrl += "?" + secondPartUrl.split("&")[1]; // 'alt=media'
+    firstPartUrl += "&token=" + object.metadata.firebaseStorageDownloadTokens
+
+    return firstPartUrl
 ```
