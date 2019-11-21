@@ -12,6 +12,7 @@
 The House of Code Evaluation application is a chat room and messaging app built for android with Java using Android Studio.
 I have no prior experience with Android programming specifically, so please excuse any minor errors.
 The application uses Google Firebase for the data layer, which I also had no prior experience with.
+The project was built using Android Studio 3.5.2, testet on the Google Nexus 5X emulator as well as my personal phone a OnePlus 7 pro.
 
 ### Splash screen
 The splash screen is implemented as its own activity. A postDelayed handler is used to set a short delay before the user is redirected to the login screen/chat room screen depending on whether or not the user is logged in.
