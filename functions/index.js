@@ -27,10 +27,27 @@ exports.sendNotification = functions.region('europe-west2').firestore
     });
 
 exports.createMessageWithImage = functions.region('europe-west2').storage
-    .object().onFinalize(async (object) => {
+    .object().onFinalize((object) => {
 
         var room = object.name.match(/.*?(?=\/)/g)[0];
         var message = object.name.match(/\/.*/g)[0].replace("/", "");
+
+        var url = mediaLinkToDownloadableUrl(object);
+        console.log(url);
+
         return admin.firestore().collection('chat-rooms').doc(room)
-            .collection('messages').doc(message).update({imageUri: object.mediaLink});
+            .collection('messages').doc(message).update({imageUri: url});
     });
+
+function mediaLinkToDownloadableUrl(object) {
+    var firstPartUrl = object.mediaLink.split("?")[0] // 'https://www.googleapis.com/download/storage/v1/b/house-of-code-evaluation.appspot.com/o/...'
+    var secondPartUrl = object.mediaLink.split("?")[1] // 'generation=...&alt=media'
+
+    firstPartUrl = firstPartUrl.replace("https://www.googleapis.com/download/storage", "https://firebasestorage.googleapis.com")
+    firstPartUrl = firstPartUrl.replace("v1", "v0")
+
+    firstPartUrl += "?" + secondPartUrl.split("&")[1]; // 'alt=media'
+    firstPartUrl += "&token=" + object.metadata.firebaseStorageDownloadTokens
+
+    return firstPartUrl
+}

@@ -68,10 +68,7 @@ public class Message {
         return date;
     }
 
-    public Uri getImageUri() {
-        if (imageUri != null) {
-            return Uri.parse(imageUri);
-        }
-        return null;
+    public String getImageUri() {
+        return imageUri;
     }
 }

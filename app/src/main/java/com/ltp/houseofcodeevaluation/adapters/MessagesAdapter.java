@@ -1,6 +1,5 @@
 package com.ltp.houseofcodeevaluation.adapters;
 
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,9 +9,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.ltp.houseofcodeevaluation.R;
 import com.ltp.houseofcodeevaluation.repository.Message;
-import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -41,12 +40,13 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
     public void onBindViewHolder(@NonNull MessagesViewHolder holder, int position) {
         Message message = messages.get(position);
         holder.userName.setText(message.getUserName());
-        Picasso.with(parent.getContext()).load(message.getAvatarUri()).into(holder.avatar);
-//        holder.avatar.setImageURI(Uri.parse(message.getAvatarUri()));
+        Glide.with(parent.getContext()).load(message.getAvatarUri()).into(holder.avatar);
         holder.message.setText(message.getText());
         holder.date.setText(message.getDate().toString());
-        Picasso.with(parent.getContext()).load(message.getImageUri()).into(holder.imageView);
-//        holder.imageView.setImageURI(message.getImageUri());
+        if(message.getImageUri() != null) {
+            Glide.with(parent.getContext()).load(message.getImageUri()).into(holder.imageView);
+            holder.imageView.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override

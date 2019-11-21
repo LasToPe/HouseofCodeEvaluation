@@ -8,8 +8,10 @@
 
   <ImageView
       android:id="@+id/avatarView"
-      android:layout_width="64dp"
-      android:layout_height="64dp"
+      android:layout_width="50dp"
+      android:layout_height="50dp"
+      android:layout_marginStart="10dp"
+      android:layout_marginTop="10dp"
       tools:srcCompat="@tools:sample/avatars" />
 
   <TextView
@@ -17,6 +19,7 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_marginStart="10dp"
+      android:layout_marginTop="10dp"
       android:layout_toEndOf="@id/avatarView"
       android:text="TextView"
       android:textColor="@color/cardview_dark_background"
@@ -28,7 +31,7 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_marginStart="10dp"
-      android:layout_marginTop="6dp"
+      android:layout_marginTop="16dp"
       android:layout_toEndOf="@id/userNameView"
       android:text="TextView"
       android:textColor="@color/cardview_dark_background"
@@ -49,17 +52,18 @@
 
   <ImageView
       android:id="@+id/imageView"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
+      android:layout_width="200dp"
+      android:layout_height="200dp"
       android:layout_below="@id/messageView"
       android:layout_marginLeft="10dp"
-      android:layout_toEndOf="@id/avatarView" />
+      android:layout_toEndOf="@id/avatarView"
+      android:visibility="gone"/>
 
   <View
       android:layout_width="match_parent"
       android:layout_height="1dp"
       android:background="@color/cardview_dark_background"
-      android:layout_below="@id/messageView"
+      android:layout_below="@id/imageView"
       android:layout_marginTop="12dp"/>
 
 </RelativeLayout>
