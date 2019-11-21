@@ -43,6 +43,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
         Glide.with(parent.getContext()).load(message.getAvatarUri()).into(holder.avatar);
         holder.message.setText(message.getText());
         holder.date.setText(message.getDate().toString());
+        // Set the image of the message if it exists
         if(message.getImageUri() != null) {
             Glide.with(parent.getContext()).load(message.getImageUri()).into(holder.imageView);
             holder.imageView.setVisibility(View.VISIBLE);

@@ -235,6 +235,10 @@ public class MessagingActivity extends Activity {
         }
     }
 
+    /**
+     * Method for choosing an image to upload
+     * Starts the activity caught by the onACtivityResult method.
+     */
     private void chooseImage() {
         Intent intent = new Intent();
         intent.setType("image/*");
@@ -253,6 +257,10 @@ public class MessagingActivity extends Activity {
         }
     }
 
+    /**
+     * Method for uploading file to the firebase storage
+     * @param documentReference used to the the id of the message, which is also used for the storage item
+     */
     private void uploadImage(DocumentReference documentReference) {
         try {
             if (filepath != null) {
