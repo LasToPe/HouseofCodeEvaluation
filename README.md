@@ -9,7 +9,7 @@
 - Upload images to chat room
 
 ## Documentation
-The House of Code Evaluation application is a chat room and messaging app built for android with Java using Android Studio.
+The House of Code Evaluation application is a chat room and messaging app built for android with Java.
 I have no prior experience with Android programming specifically, so please excuse any minor errors.
 The application uses Google Firebase for the data layer, which I also had no prior experience with.
 The project was built using Android Studio 3.5.2, testet on the Google Nexus 5X emulator as well as my personal phone a OnePlus 7 pro.
@@ -297,5 +297,4 @@ In total I spent just shy of 29 hours on this project. I tracked the time using 
 | Messages and chat rooms | 9          |
 | Push notifications      | 4          |
 | Splash screen           | 1.5        |
-| ----------------------- | ---------- |
-| Total                   | 29         |
+| **Total**               | **29**     |
