@@ -91,23 +91,35 @@ private void getChatRooms() {
 ```
 
 ### Send and receive messages
-The messaging screen is like the chat rooms screen made up of the activity layout and the partial. The activity layout again consists of a recycler that contains the partials for the messages, and a small linear layout at the bottom containing a text field for the user to write their message in and a send button. Each message partial layout consitsts of a text view for the user name the person who sent the message, a text view for the time that the message was sent, a text view for the message itself and an image view shows the users image/avatar. The image is loaded with the Glide framework <https://github.com/bumptech/glide>. The messaging screen will automatically update when a new message is detected in the database.
+The messaging screen is like the chat rooms screen made up of the activity layout and the partial. The activity layout again consists of a recycler that contains the partials for the messages, and a small linear layout at the bottom containing a text field for the user to write their message in and a send button. Each message partial layout consists of a text view for the user name the person who sent the message, a text view for the time that the message was sent, a text view for the message itself and an image view shows the users image/avatar. The image is loaded with the Glide framework <https://github.com/bumptech/glide>. The messaging screen will automatically update when a new message is detected in the database.
 
 **Send Message**
 ```java
 private void sendMessage() {
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    final FirebaseFirestore db = FirebaseFirestore.getInstance();
+
     String text = messageText.getText().toString();
-    if (text == "") {
+    if (text.equals("") && filepath == null) {
         return;
     }
-    messageText.setText("");
-    Message message = new Message(text);
+
+    HandleSubscription();
+
     try {
-        db.collection("chat-rooms").document(currentRoom).collection("messages").add(message);
-        db.collection("chat-rooms").document(currentRoom).update("numberOfMessages", messageList.size()+1);
+        Message message = new Message(text);
+        db.collection("chat-rooms").document(currentRoom).collection("messages").add(message).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+            @Override
+            public void onSuccess(DocumentReference documentReference) {
+                uploadImage(documentReference);
+            }
+        });
+        db.collection("chat-rooms").document(currentRoom).update("numberOfMessages", messageList.size() + 1);
+        db.collection("chat-rooms").document(currentRoom).update("newestMessage", message.getDate());
     } catch (Exception e) {
-        Log.wtf("Error", e);
+        Log.e("Error", e.getMessage());
+    } finally {
+        messageText.setText("");
+        findViewById(R.id.preview).setVisibility(View.GONE);
     }
 }
 ```
@@ -117,12 +129,12 @@ private void attachListener() {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     try {
         CollectionReference messagesRef = db.collection("chat-rooms").document(currentRoom).collection("messages");
-        messagesRef.orderBy("date")
+        messagesRef.orderBy("date", Query.Direction.DESCENDING).limit(numberOfMessages)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
                         if(e != null) {
-                            Log.wtf("Error", e);
+                            Log.e("Error", e.getMessage());
                         }
 
                         List<Message> messages = new ArrayList<>();
@@ -267,3 +279,23 @@ function mediaLinkToDownloadableUrl(object) {
 
     return firstPartUrl
 ```
+### Unfulfilled Accepttests
+There are two accepttests that are unfortunateley not fulfilled, as I have no idea of how to implement it.
+
+1. When a user presses the push notifications they are not taken to the correct room. I do not know how to implement deep links in a notification.
+2. You cannot open the camera directly from the messaging screen. I could not figure out how to set up two different actions for one button.
+
+## Time overview
+In total I spent just shy of 29 hours on this project. I tracked the time using toggl.
+
+| Task                    | Time (hrs) |
+| ----------------------- |:----------:|
+| Analysis                | 2          |
+| Documentation           | 3          |
+| Image upload            | 6.5        |
+| Login                   | 3          |
+| Messages and chat rooms | 9          |
+| Push notifications      | 4          |
+| Splash screen           | 1.5        |
+| ----------------------- | ---------- |
+| Total                   | 29         |
