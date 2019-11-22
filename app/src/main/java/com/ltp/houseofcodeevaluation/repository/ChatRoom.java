@@ -9,6 +9,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -18,13 +19,16 @@ public class ChatRoom {
     private String name;
     private String description;
     private int numberOfMessages;
+    private Date newestMessage;
 
     public ChatRoom() {
     }
 
-    public ChatRoom(String name, String description) {
+    public ChatRoom(String name, String description, int numberOfMessages, Date newestMessage) {
         this.name = name;
         this.description = description;
+        this.numberOfMessages = numberOfMessages;
+        this.newestMessage = newestMessage;
     }
 
     public String getName() {
@@ -49,5 +53,13 @@ public class ChatRoom {
 
     public int getNumberOfMessages() {
         return numberOfMessages;
+    }
+
+    public Date getNewestMessage() {
+        return newestMessage;
+    }
+
+    public void setNewestMessage(Date newestMessage) {
+        this.newestMessage = newestMessage;
     }
 }

@@ -194,6 +194,7 @@ public class MessagingActivity extends Activity {
                 }
             });
             db.collection("chat-rooms").document(currentRoom).update("numberOfMessages", messageList.size() + 1);
+            db.collection("chat-rooms").document(currentRoom).update("newestMessage", message.getDate());
         } catch (Exception e) {
             Log.e("Error", e.getMessage());
         } finally {

@@ -19,6 +19,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.ltp.houseofcodeevaluation.adapters.ChatRoomAdapter;
 import com.ltp.houseofcodeevaluation.repository.ChatRoom;
@@ -66,7 +67,7 @@ public class ChatRoomsActivity extends Activity {
     private void getChatRooms() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         try {
-            db.collection("chat-rooms").get()
+            db.collection("chat-rooms").orderBy("newestMessage", Query.Direction.DESCENDING).get()
                     .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
